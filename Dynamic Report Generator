@@ -1,0 +1,203 @@
+import functools
+from datetime import datetime
+
+# ==========================
+# DECORATORS
+# ==========================
+
+def uppercase(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs).upper()
+    return wrapper
+
+
+def star_border(symbol="*", length=60):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            text = func(*args, **kwargs)
+            border = symbol * length
+            return f"{border}\n{text}\n{border}"
+        return wrapper
+    return decorator
+
+
+def logger(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        print(f"[INFO] Executing {func.__name__}")
+        return func(*args, **kwargs)
+    return wrapper
+
+
+# ==========================
+# REPORT ITEM
+# ==========================
+
+class ReportItem:
+    def __init__(self, heading, details):
+        self.heading = heading
+        self.details = details
+
+    def __str__(self):
+        return f"{self.heading}\n{self.details}"
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, ReportItem)
+            and self.heading == other.heading
+            and self.details == other.details
+        )
+
+
+# ==========================
+# REPORT CLASS
+# ==========================
+
+class DynamicReport:
+
+    templates = {}
+
+    def __init__(self, title, creator):
+        self.title = title
+        self.creator = creator
+        self.items = []
+        self.date = datetime.now()
+
+    # ---------- Class Methods ----------
+
+    @classmethod
+    def create_template(cls, name, headings):
+        cls.templates[name] = headings
+
+    @classmethod
+    def from_template(cls, template_name, title, creator):
+        if template_name not in cls.templates:
+            raise ValueError("Template not found")
+
+        report = cls(title, creator)
+
+        for heading in cls.templates[template_name]:
+            report.add_item(heading, "Pending...")
+
+        return report
+
+    # ---------- Instance Methods ----------
+
+    def add_item(self, heading, details):
+        self.items.append(ReportItem(heading, details))
+
+    def update_item(self, heading, details):
+        for item in self.items:
+            if item.heading == heading:
+                item.details = details
+
+    @logger
+    @star_border("#", 50)
+    def overview(self):
+        return (
+            f"Title : {self.title}\n"
+            f"Creator : {self.creator}\n"
+            f"Sections : {len(self.items)}\n"
+            f"Date : {self.date.strftime('%d-%m-%Y')}"
+        )
+
+    @uppercase
+    def report_title(self):
+        return self.title
+
+    # ---------- Magic Methods ----------
+
+    def __len__(self):
+        return len(self.items)
+
+    def __getitem__(self, index):
+        return self.items[index]
+
+    def __iter__(self):
+        return iter(self.items)
+
+    def __contains__(self, heading):
+        return any(item.heading == heading for item in self.items)
+
+    def __add__(self, other):
+        new_report = DynamicReport(
+            self.title + " + " + other.title,
+            self.creator
+        )
+        new_report.items = self.items + other.items
+        return new_report
+
+    def __call__(self, formatter=None):
+        output = str(self)
+        return formatter(output) if formatter else output
+
+    def __str__(self):
+        text = f"\nREPORT : {self.title}\n"
+        text += f"Creator : {self.creator}\n"
+        text += "-" * 40 + "\n"
+
+        for item in self.items:
+            text += str(item) + "\n\n"
+
+        return text
+
+
+# ==========================
+# DRIVER PROGRAM
+# ==========================
+
+if __name__ == "__main__":
+
+    DynamicReport.create_template(
+        "Student Report",
+        ["Introduction", "Skills", "Projects", "Conclusion"]
+    )
+
+    report = DynamicReport.from_template(
+        "Student Report",
+        "Python Project Report",
+        "Ayush"
+    )
+
+    report.update_item(
+        "Introduction",
+        "This report explains a dynamic report generator."
+    )
+
+    report.update_item(
+        "Skills",
+        "Python, OOP, Decorators, Magic Methods"
+    )
+
+    report.update_item(
+        "Projects",
+        "Dynamic Report Generator"
+    )
+
+    report.update_item(
+        "Conclusion",
+        "Project completed successfully."
+    )
+
+    print(report.overview())
+
+    print("\nReport Title:")
+    print(report.report_title())
+
+    print("\nLength of Report:")
+    print(len(report))
+
+    print("\nFirst Section:")
+    print(report[0])
+
+    print("\nIterating Sections:")
+    for section in report:
+        print(section.heading)
+
+    print("\nContains 'Projects'?")
+    print("Projects" in report)
+
+    print("\nCallable Report:")
+    print(report(str.upper))
