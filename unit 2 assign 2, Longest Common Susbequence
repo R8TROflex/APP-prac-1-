@@ -1,0 +1,115 @@
+"""
+=====================================================================
+ LONGEST COMMON SUBSEQUENCE (LCS)
+ Approach: Dynamic Programming (Tabulation), with Brute-Force and
+            Memoized versions included for comparison.
+=====================================================================
+"""
+
+# =====================================================================
+# 1. BRUTE FORCE (Exponential time, for comparison)
+# =====================================================================
+def brute_force_lcs(seq1, seq2):
+    """Naive recursive LCS length. Explores every combination."""
+    def helper(i, j):
+        if i == 0 or j == 0:
+            return 0
+        if seq1[i - 1] == seq2[j - 1]:
+            return 1 + helper(i - 1, j - 1)
+        return max(helper(i - 1, j), helper(i, j - 1))
+
+    return helper(len(seq1), len(seq2))
+
+
+# =====================================================================
+# 2. TOP-DOWN DP (Memoized recursion)
+# =====================================================================
+def memoized_lcs(seq1, seq2):
+    """Recursive LCS length with a memoization cache."""
+    memo = {}
+
+    def helper(i, j):
+        if i == 0 or j == 0:
+            return 0
+        if (i, j) in memo:
+            return memo[(i, j)]
+        if seq1[i - 1] == seq2[j - 1]:
+            result = 1 + helper(i - 1, j - 1)
+        else:
+            result = max(helper(i - 1, j), helper(i, j - 1))
+        memo[(i, j)] = result
+        return result
+
+    return helper(len(seq1), len(seq2))
+
+
+# =====================================================================
+# 3. BOTTOM-UP DP (Tabulation - Recommended Solution)
+# =====================================================================
+def build_lcs_table(seq1, seq2):
+    """Fills an (m+1) x (n+1) grid for bottom-up dynamic programming."""
+    m, n = len(seq1), len(seq2)
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if seq1[i - 1] == seq2[j - 1]:
+                dp[i][j] = dp[i - 1][j - 1] + 1
+            else:
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
+    return dp
+
+
+def reconstruct_lcs(dp, seq1, seq2):
+    """Backtracks through the completed DP table to recover the LCS string/list."""
+    i, j = len(seq1), len(seq2)
+    result = []
+    while i > 0 and j > 0:
+        if seq1[i - 1] == seq2[j - 1]:
+            result.append(seq1[i - 1])
+            i -= 1
+            j -= 1
+        elif dp[i - 1][j] >= dp[i][j - 1]:
+            i -= 1
+        else:
+            j -= 1
+    result.reverse()
+    return "".join(result) if isinstance(seq1, str) else result
+
+
+def lcs(seq1, seq2):
+    """Main entry point returning length, subsequence, and the DP table."""
+    dp = build_lcs_table(seq1, seq2)
+    length = dp[len(seq1)][len(seq2)]
+    subsequence = reconstruct_lcs(dp, seq1, seq2)
+    return length, subsequence, dp
+
+
+# =====================================================================
+# 4. HELPER: Pretty-print the DP Table
+# =====================================================================
+def print_dp_table(dp, seq1, seq2):
+    header = "        " + "  ".join(f"{c:>2}" for c in seq2)
+    print(header)
+    for i, row in enumerate(dp):
+        label = seq1[i - 1] if i > 0 else " "
+        print(f"  {label:>2} | " + "  ".join(f"{v:>2}" for v in row))
+
+
+# =====================================================================
+# 5. DRIVER CODE
+# =====================================================================
+if __name__ == "__main__":
+    seq1 = "ABCBDAB"
+    seq2 = "BDCABA"
+
+    print(f"Sequence 1: {seq1}")
+    print(f"Sequence 2: {seq2}\n")
+
+    length, subsequence, dp = lcs(seq1, seq2)
+
+    print("DP Table:")
+    print_dp_table(dp, seq1, seq2)
+
+    print(f"\nLCS length     : {length}")
+    print(f"LCS subsequence : {subsequence}")
+
