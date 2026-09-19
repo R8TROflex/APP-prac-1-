@@ -1,0 +1,80 @@
+from abc import ABC, abstractmethod
+
+
+# ---------------------------------------------------------
+# STRATEGY INTERFACE
+# ---------------------------------------------------------
+class DeliveryStrategy(ABC):
+
+    @abstractmethod
+    def deliver(self, order):
+        pass
+
+
+# ---------------------------------------------------------
+# CONCRETE STRATEGIES
+# ---------------------------------------------------------
+class BikeDelivery(DeliveryStrategy):
+
+    def deliver(self, order):
+        print(f"Delivering Order #{order} using Bike")
+        print("Estimated time: 30 minutes")
+        return "Bike Delivery Successful"
+
+
+class CarDelivery(DeliveryStrategy):
+
+    def deliver(self, order):
+        print(f"Delivering Order #{order} using Car")
+        print("Estimated time: 20 minutes")
+        return "Car Delivery Successful"
+
+
+class DroneDelivery(DeliveryStrategy):
+
+    def deliver(self, order):
+        print(f"Delivering Order #{order} using Drone")
+        print("Estimated time: 10 minutes")
+        return "Drone Delivery Successful"
+
+
+# ---------------------------------------------------------
+# CONTEXT CLASS
+# ---------------------------------------------------------
+class FoodDelivery:
+
+    def __init__(self, strategy=None):
+        self.strategy = strategy
+
+    def set_strategy(self, strategy):
+        self.strategy = strategy
+        print("Delivery method changed.")
+
+    def deliver_order(self, order):
+        if self.strategy is None:
+            print("No delivery method selected.")
+            return
+
+        return self.strategy.deliver(order)
+
+
+# ---------------------------------------------------------
+# MAIN PROGRAM
+# ---------------------------------------------------------
+if __name__ == "__main__":
+
+    # Start with Bike Delivery
+    delivery = FoodDelivery(BikeDelivery())
+
+    print("\n--- Bike Delivery ---")
+    delivery.deliver_order(101)
+
+    # Change strategy to Car
+    print("\n--- Switching to Car Delivery ---")
+    delivery.set_strategy(CarDelivery())
+    delivery.deliver_order(102)
+
+    # Change strategy to Drone
+    print("\n--- Switching to Drone Delivery ---")
+    delivery.set_strategy(DroneDelivery())
+    delivery.deliver_order(103)
