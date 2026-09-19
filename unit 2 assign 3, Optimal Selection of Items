@@ -1,0 +1,116 @@
+"""
+=====================================================================
+ SUBSET SUM PROBLEM (A Close Cousin of the 0/1 Knapsack)
+ Approaches included: Brute Force, Top-Down (Memoization), 
+                       and Bottom-Up (Tabulation).
+=====================================================================
+IN PLAIN ENGLISH:
+  Given a set of numbers and a target sum, determine if there is a 
+  subset of the numbers that adds up exactly to the target sum. 
+  Just like 0/1 Knapsack, each number is either included (1) or 
+  excluded (0).
+=====================================================================
+"""
+
+import timeit
+
+# =====================================================================
+# 1. BRUTE FORCE (exponential time)
+# =====================================================================
+def subset_sum_brute_force(nums, target, n=None):
+    """Naive recursive solution. Time complexity: O(2^n)."""
+    if n is None:
+        n = len(nums)
+    if target == 0:
+        return True
+    if n == 0:
+        return False
+    if nums[n - 1] > target:
+        # Too big to fit into the remaining target sum — skip it.
+        return subset_sum_brute_force(nums, target, n - 1)
+    
+    include = subset_sum_brute_force(nums, target - nums[n - 1], n - 1)
+    exclude = subset_sum_brute_force(nums, target, n - 1)
+    return include or exclude
+
+
+# =====================================================================
+# 2. TOP-DOWN (memoized recursion)
+# =====================================================================
+def subset_sum_top_down(nums, target):
+    """Recursive solution with a cache. Time complexity: O(n * target)."""
+    n = len(nums)
+    memo = {}
+
+    def helper(i, rem_target):
+        if rem_target == 0:
+            return True
+        if i == 0:
+            return False
+        if (i, rem_target) in memo:
+            return memo[(i, rem_target)]
+
+        if nums[i - 1] > rem_target:
+            result = helper(i - 1, rem_target)
+        else:
+            include = helper(i - 1, rem_target - nums[i - 1])
+            exclude = helper(i - 1, rem_target)
+            result = include or exclude
+
+        memo[(i, rem_target)] = result
+        return result
+
+    return helper(n, target)
+
+
+# =====================================================================
+# 3. BOTTOM-UP (tabulation)
+# =====================================================================
+def build_subset_sum_table(nums, target):
+    """Fills an (n+1) x (target+1) grid where dp[i][t] is True if 
+    a target sum t can be achieved using a subset of the first i numbers."""
+    n = len(nums)
+    dp = [[False] * (target + 1) for _ in range(n + 1)]
+    
+    # A target sum of 0 is always possible (with an empty subset)
+    for i in range(n + 1):
+        dp[i][0] = True
+
+    for i in range(1, n + 1):
+        for t in range(1, target + 1):
+            if nums[i - 1] > t:
+                dp[i][t] = dp[i - 1][t]                    # can't fit -> skip it
+            else:
+                skip = dp[i - 1][t]
+                take = dp[i - 1][t - nums[i - 1]]
+                dp[i][t] = skip or take                    # logical OR of choices
+    return dp
+
+
+def subset_sum_bottom_up(nums, target):
+    """Main entry point for bottom-up approach."""
+    dp = build_subset_sum_table(nums, target)
+    n = len(nums)
+    return dp[n][target], dp
+
+
+# =====================================================================
+# 4. DEMO / DRIVER CODE
+# =====================================================================
+if __name__ == "__main__":
+    nums = [3, 34, 4, 12, 5, 2]
+    target = 9
+
+    print(f"Numbers: {nums}")
+    print(f"Target sum: {target}\n")
+
+    print(f"[1] Brute Force : {subset_sum_brute_force(nums, target)}")
+    print(f"[2] Top-Down    : {subset_sum_top_down(nums, target)}")
+
+    is_possible, dp = subset_sum_bottom_up(nums, target)
+    print(f"[3] Bottom-Up   : {is_possible}")
+
+    # ---- cross-check: all approaches agree ----
+    assert subset_sum_brute_force(nums, target) == is_possible
+    assert subset_sum_top_down(nums, target) == is_possible
+    print("\n[check] All three approaches agree on the result.")
