@@ -1,0 +1,61 @@
+import re
+
+#
+# 1. THE URL PATTERN
+# Plain English: protocol (http/https) + :// + domain name + dot + suffix + optional path
+#
+URL_PATTERN = r'https?://[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:/[a-zA-Z0-9_.-]*)?'
+
+
+#
+# 2. FIND ALL URLS IN A BLOCK OF TEXT
+# Plain English: scan the whole text and collect every substring that matches the URL shape.
+#
+def find_urls(text):
+    """Returns a list of every URL-shaped substring found in text."""
+    return re.findall(URL_PATTERN, text)
+
+
+#
+# 3. VALIDATE A SINGLE STRING AS A URL
+# Plain English: fullmatch requires the ENTIRE string to match the pattern from start to end.
+#
+def is_valid_url(candidate):
+    """Returns True only if the ENTIRE string is a valid URL."""
+    return re.fullmatch(URL_PATTERN, candidate) is not None
+
+
+#
+# 4. DEMO / DRIVER CODE
+#
+if __name__ == "__main__":
+    sample_text = """
+    Check out our official websites for more information:
+    Main portal: https://www.example-corp.com/index
+    Support documentation: http://help.support-hub.co.in/docs
+    Personal blog of Rahul: https://rahul-blog.org
+    Invalid mentions: www.incomplete-url.com, ftp://bad-protocol.org, just-text-here
+    Partner site: https://secure-site.io/login
+    """
+
+    print("Original text:")
+    print(sample_text)
+
+    found = find_urls(sample_text)
+    print(f"\nFound {len(found)} URL address(es) in the text:")
+    for url in found:
+        print(f" - {url}")
+
+    print("\nValidating individual strings with is_valid_url():")
+    test_cases = [
+        "https://www.example.com",
+        "http://site.co.in/path",
+        "www.missing-protocol.com",
+        "https://invalid space.com",
+        "ftp://wrong-protocol.org",
+        "https://sub.domain-name.org/page_1",
+    ]
+
+    for candidate in test_cases:
+        result = "VALID" if is_valid_url(candidate) else "INVALID"
+        print(f" {candidate:35s} -> {result}")
