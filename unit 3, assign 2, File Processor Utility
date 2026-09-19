@@ -1,0 +1,66 @@
+"""
+File Processor Utility - Enhanced Version
+Demonstrating safe file handling, line counting, efficient extraction, 
+and file writing/appending modes based on the lab manual concepts.
+"""
+
+def count_lines(input_path):
+    """Returns the total number of lines in the file using memory-efficient iteration."""
+    with open(input_path, "r") as f:
+        return sum(1 for _ in f)
+
+def extract_first_lines(input_path, n=3):
+    """Extracts the first n lines from the file without reading the whole file into memory."""
+    extracted = []
+    with open(input_path, "r") as f:
+        for i, line in enumerate(f):
+            if i >= n:
+                break
+            extracted.append(line)
+    return extracted
+
+def write_output_file(output_path, lines, mode="w"):
+    """Writes or appends lines to an output file using the specified file mode."""
+    with open(output_path, mode) as f:
+        f.writelines(lines)
+
+if __name__ == "__main__":
+    input_file = "activity_log.txt"
+    output_file = "summary_log.txt"
+
+    # Step 1: Create a sample input file for demonstration using "w" mode
+    sample_data = [
+        "2026-06-01 08:00:00 - System boot initialized\n",
+        "2026-06-01 08:05:12 - Network interface connected\n",
+        "2026-06-01 08:10:45 - User authentication successful\n",
+        "2026-06-01 08:15:30 - Background synchronization started\n",
+        "2026-06-01 08:20:00 - Routine health check completed\n"
+    ]
+    
+    with open(input_file, "w") as f:
+        f.writelines(sample_data)
+    print(f"Sample input file '{input_file}' created successfully.\n")
+
+    # Step 2: Count lines safely using 'with' and generator expressions
+    total_lines = count_lines(input_file)
+    print(f"Total lines in '{input_file}': {total_lines}")
+
+    # Step 3: Extract the first 3 lines efficiently using enumerate() and break
+    top_lines = extract_first_lines(input_file, n=3)
+    print("\nFirst 3 lines extracted:")
+    for line in top_lines:
+        print(f"  {line.rstrip()}")
+
+    # Step 4: Write the extracted lines to a new output file using "w" mode
+    write_output_file(output_file, top_lines, mode="w")
+    print(f"\nExtracted lines written to '{output_file}' (using 'w' mode).")
+
+    # Step 5: Demonstrate appending ("a" mode) with an additional entry
+    append_data = ["2026-06-01 08:25:00 - Extra appended summary entry\n"]
+    write_output_file(output_file, append_data, mode="a")
+    print(f"Appended new entry to '{output_file}' (using 'a' mode).")
+
+    # Step 6: Verify final contents of the output file
+    print(f"\nFinal contents of '{output_file}':")
+    with open(output_file, "r") as f:
+        print(f.read())
