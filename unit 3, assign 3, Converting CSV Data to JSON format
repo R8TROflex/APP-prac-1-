@@ -1,0 +1,90 @@
+import csv
+import json
+
+
+# 1. READ CSV FILE
+def read_csv(input_path):
+    try:
+        with open(input_path, "r", newline="") as f:
+            reader = csv.DictReader(f)
+
+            data = []
+
+            for row in reader:
+                # Convert salary from string to number
+                row["id"] = int(row["id"])
+                row["salary"] = float(row["salary"])
+
+                data.append(row)
+
+            return data
+
+    except FileNotFoundError:
+        print("Error: CSV file not found.")
+        return []
+
+
+# 2. WRITE DATA TO JSON FILE
+def write_json(output_path, data):
+    with open(output_path, "w") as f:
+        json.dump(data, f, indent=4)
+
+
+# 3. CONVERT CSV TO JSON
+def convert_csv_to_json(input_path, output_path):
+    data = read_csv(input_path)
+
+    if data:
+        write_json(output_path, data)
+
+    return data
+
+
+# 4. MAIN PROGRAM
+if __name__ == "__main__":
+
+    input_path = "employees.csv"
+    output_path = "employees.json"
+
+    # Create sample CSV file
+    sample_csv = (
+        "id,name,department,salary\n"
+        "101,Rahul,IT,45000\n"
+        "102,Priya,HR,38000\n"
+        "103,Amit,Finance,52000\n"
+    )
+
+    with open(input_path, "w", newline="") as f:
+        f.write(sample_csv)
+
+    print("CSV file created successfully.\n")
+
+    # Display CSV contents
+    print("Contents of CSV file:")
+    with open(input_path, "r") as f:
+        print(f.read())
+
+    # Convert CSV to JSON
+    data = convert_csv_to_json(input_path, output_path)
+
+    print("Converted", len(data), "employees to JSON.")
+    print("JSON file created successfully.\n")
+
+    # Display JSON contents
+    print("Contents of JSON file:")
+    with open(output_path, "r") as f:
+        json_text = f.read()
+        print(json_text)
+
+    # json.dumps() - convert Python data to JSON string
+    json_string = json.dumps(data, indent=4)
+
+    print("\nJSON string using json.dumps():")
+    print(json_string)
+
+    # json.load() - read JSON back into Python
+    with open(output_path, "r") as f:
+        loaded_data = json.load(f)
+
+    print("\nFirst Employee:")
+    print(loaded_data[0]["name"])
