@@ -1,0 +1,59 @@
+import numpy as np
+import pandas as pd
+
+#
+# 1. CREATE THE SERIES WITH RANDOM NUMBERS
+#
+def create_temperature_series(n=7, seed=100):
+    """Returns a Series of n random integers representing daily temperatures."""
+    rng = np.random.default_rng(seed)  # Seeded for reproducible random results[span_4](start_span)[span_4](end_span)[span_5](start_span)[span_5](end_span)
+    values = rng.integers(low=20, high=45, size=n)
+    return pd.Series(values)
+
+def create_labeled_series(series):
+    """Attaches custom, human-readable day labels as an index to the Series[span_6](start_span)[span_6](end_span)[span_7](start_span)[span_7](end_span)."""
+    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    return pd.Series(series.values, index=days[:len(series)])
+
+#
+# 2. INSPECT THE SERIES ATTRIBUTES
+#
+def describe_series(s, title="Series"):
+    """Prints the Series data along with its core attributes[span_8](start_span)[span_8](end_span)[span_9](start_span)[span_9](end_span)."""
+    print(f"{title}:")
+    print(s)
+    print(f"\nDtype: {s.dtype}")
+    print(f"Shape: {s.shape}")
+    print(f"Size: {s.size}")
+    print(f"Index: {list(s.index)}")
+
+#
+# 3. DRIVER CODE / DEMO
+#
+if __name__ == "__main__":
+    # Step 1: Create a Series with the default 0, 1, 2... numeric index[span_10](start_span)[span_10](end_span)
+    temp_series = create_temperature_series()
+    print("STEP 1: Series with the default index")
+    describe_series(temp_series, title="Default Index Series")
+
+    # Step 2: Create the same values with custom labels (days of the week)[span_11](start_span)[span_11](end_span)[span_12](start_span)[span_12](end_span)
+    labeled_temp = create_labeled_series(temp_series)
+    print("\nSTEP 2: Same values with custom day labels")
+    describe_series(labeled_temp, title="Custom Labeled Series")
+
+    # Step 3: Fast vectorized statistics inherited from NumPy[span_13](start_span)[span_13](end_span)[span_14](start_span)[span_14](end_span)
+    print("\nSTEP 3: Basic Statistics")
+    print(f"Minimum Temperature: {temp_series.min()}")
+    print(f"Maximum Temperature: {temp_series.max()}")
+    print(f"Mean Temperature: {temp_series.mean():.2f}")
+    print(f"Total Sum: {temp_series.sum()}")
+
+    # Step 4: Sorting values (index travels with the values)[span_15](start_span)[span_15](end_span)[span_16](start_span)[span_16](end_span)
+    print("\nSTEP 4: Sorted Temperatures (Ascending)")
+    print(labeled_temp.sort_values().to_string())
+
+    # Step 5: Indexing and boolean filtering[span_17](start_span)[span_17](end_span)[span_18](start_span)[span_18](end_span)
+    print("\nSTEP 5: Indexing and Filtering")
+    print(f"First temperature value (iloc[0]): {temp_series.iloc[0]}")
+    print("Days with temperatures greater than 30°C:")
+    print(labeled_temp[labeled_temp > 30].to_string())
