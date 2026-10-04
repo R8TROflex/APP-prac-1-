@@ -1,0 +1,88 @@
+import numpy as np
+
+# 1. Create array using np.array()
+def create_array_from_list():
+    return np.array([45, 67, 89, 56, 78, 92, 61, 73, 85, 50])
+
+
+# 2. Create array using np.arange()
+def create_array_with_arange():
+    return np.arange(45, 95, 5)
+
+
+# 3. Display array properties
+def describe_array(arr):
+    print("Array:", arr)
+    print("Data type:", arr.dtype)
+    print("Shape:", arr.shape)
+    print("Number of dimensions:", arr.ndim)
+    print("Size:", arr.size)
+
+
+if __name__ == "__main__":
+
+    # Create array using np.array()
+    marks1 = create_array_from_list()
+
+    print("Array created using np.array():")
+    describe_array(marks1)
+
+    # Create array using np.arange()
+    print()
+    marks2 = create_array_with_arange()
+
+    print("Array created using np.arange():")
+    describe_array(marks2)
+
+    # Compare two arrays
+    print()
+    print("Are both arrays equal?",
+          np.array_equal(marks1, marks2))
+
+    # Vectorized operations
+    print()
+    print("Vectorized Operations")
+    print("Marks + 5:", marks1 + 5)
+    print("Marks - 5:", marks1 - 5)
+    print("Marks * 2:", marks1 * 2)
+    print("Total marks:", marks1.sum())
+    print("Average marks:", marks1.mean())
+    print("Maximum marks:", marks1.max())
+    print("Minimum marks:", marks1.min())
+
+    # Indexing
+    print()
+    print("Indexing")
+    print("First mark:", marks1[0])
+    print("Last mark:", marks1[-1])
+
+    # Slicing
+    print()
+    print("Slicing")
+    print("First five marks:", marks1[:5])
+    print("Every second mark:", marks1[::2])
+
+    # Boolean indexing
+    print()
+    print("Marks greater than 70:",
+          marks1[marks1 > 70])
+
+    # Zeros and Ones
+    print()
+    print("Zeros:", np.zeros(5))
+    print("Ones:", np.ones(5))
+
+    # Linspace
+    print()
+    print("Evenly spaced values:",
+          np.linspace(0, 100, 5))
+
+    # Reshape
+    print()
+    print("Reshaped array:")
+    print(marks1.reshape(2, 5))
+
+    # Append
+    print()
+    new_marks = np.append(marks1, 95)
+    print("After adding a new mark:", new_marks)
